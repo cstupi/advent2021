@@ -1,4 +1,5 @@
 use std::fmt;
+use std::cmp;
 
 fn main() {
     let input = include_str!("input.txt");
@@ -17,54 +18,66 @@ fn main() {
         };
         return Line { start: start_point, end: end_point };
     });
-    let mut map: Vec<Vec<usize>> = Vec::new();
+    let mut map: Vec<Vec<i32>> = Vec::new();
 
-    for _ in 0..10 {
-        map.push(vec![0; 10]);
+    for _ in 0..1000 {
+        map.push(vec![0; 1000]);
     }
     for line in parsed_lines {
-        println!("{}", line);
-        if line.start.y <= line.end.y {
-            if line.start.x <= line.end.x {
-                for i in line.start.y..line.end.y+1 {
-                    for j in line.start.x..line.end.x+1 {
-                        map[i as usize][j as usize] = map[i as usize][j as usize] + 1
-                    }
-                }
-            } else {
-                println!("starty <= endy startx > endx");
-                for i in line.start.y..line.end.y+1 {
-                    let mut j:i32 = line.start.x;
-                    while j >= line.end.x {
-                        println!("{},{} for point {}", j, i, line);
-                        map[i as usize][j as usize] += 1;
-                        j = j-1;
-                    }
-                }
+        if line.start.y == line.end.y {
+            let mut start: usize = line.start.x as usize;
+            let mut end: usize = line.end.x as usize;
+            if line.start.x > line.end.x {
+                start = line.end.x as usize;
+                end = line.start.x as usize;
             }
-        } else {
-            if line.start.x <= line.end.x {
-                for i in (line.start.y..line.end.y+1).rev() {
-                    for j in line.start.x..line.end.x+1 {
-                        map[i as usize][j as usize] = map[i as usize][j as usize] + 1
-                    }
-                }
-            } else {
-                for i in (line.start.y..line.end.y+1).rev() {
-                    for j in (line.start.x..line.end.x+1).rev() {
-                        map[i as usize][j as usize] = map[i as usize][j as usize] + 1;
-                    }
-                }
+            for j in start..end+1 {
+                map[line.start.y as usize][j] += 1;
             }
+        } else if line.start.x == line.end.x {
+            let mut start: usize = line.start.y as usize;
+            let mut end: usize = line.end.y as usize;
+            if line.start.y > line.end.y {
+                start = line.end.y as usize;
+                end = line.start.y as usize;
+            }
+            for j in start..end+1 {
+                map[j][line.start.x as usize] += 1;
+            }
+        } else if (std::cmp::max(line.start.x, line.end.x) - std::cmp::min(line.start.x, line.end.x)) == 
+            (std::cmp::max(line.end.y,line.end.y) - std::cmp::min(line.end.y,line.end.y)){
+            // diagonal
+            let mut startx = line.start.x;
+            let mut endx = line.end.x;
+            let mut starty = line.start.y;
+            let mut endy = line.end.y;
+            if line.start.x > line.end.x {
+                // swap so we always go downward
+                startx = line.end.x;
+                starty = line.end.y;
+                endx = line.start.x;
+                endy = line.start.y;
+            }
+
         }
-        print_grid(&map);
     }
-    print_grid(&map);
+    println!("Count: {}", count_highs(2, &map));
 }
-fn print_grid(grid:&Vec<Vec<usize>>) {
+fn count_highs(min_val: i32, grid:&Vec<Vec<i32>>) -> i32 {
+    let mut count = 0;
     for row in grid {
         for val in row {
-            print!("{}\t", val)
+            if val >= &min_val {
+                count += 1;
+            }
+        }
+    }
+    return count;
+}
+fn print_grid(grid:&Vec<Vec<i32>>) {
+    for row in grid {
+        for val in row {
+            print!("{},", val)
         }
         println!("");
     }
