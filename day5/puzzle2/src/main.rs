@@ -1,5 +1,4 @@
 use std::fmt;
-use std::cmp;
 
 fn main() {
     let input = include_str!("input.txt");
@@ -43,6 +42,33 @@ fn main() {
             }
             for j in start..end+1 {
                 map[j][line.start.x as usize] += 1;
+            }
+        } else {
+            // diagonal
+            let mut startx = line.start.x;
+            let mut starty = line.start.y;
+            let mut endy = line.end.y;
+            if line.start.x > line.end.x {
+                // swap so we always go right
+                startx = line.end.x;
+                starty = line.end.y;
+                endy = line.start.y;
+            }
+            let direction;
+            let mut x = startx;
+            let mut y;
+            // determine down or up
+            if starty < endy {
+                direction  =  1;
+                y = starty;
+            } else  {
+                direction = -1;
+                y = starty;
+            }
+            while  y != endy {
+                map[y as usize][x as usize] += 1;
+                y += direction;
+                x += 1; // always right
             }
         }
     }
