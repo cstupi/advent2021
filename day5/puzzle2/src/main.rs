@@ -2,6 +2,8 @@ use std::fmt;
 
 fn main() {
     let input = include_str!("input.txt");
+
+    // parse our input into Lines
     let parsed_lines = input.lines().map(|l| {
         let mut split = l.split_whitespace();
         let mut start = split.next().unwrap().split(',');
@@ -19,9 +21,14 @@ fn main() {
     });
     let mut map: Vec<Vec<i32>> = Vec::new();
 
+    // initialize our area map
     for _ in 0..1000 {
         map.push(vec![0; 1000]);
     }
+    
+    let mut count = 0;
+
+    // map out all our lines
     for line in parsed_lines {
         if line.start.y == line.end.y {
             let mut start: usize = line.start.x as usize;
@@ -56,22 +63,24 @@ fn main() {
             }
             let direction;
             let mut x = startx;
-            let mut y;
+            let mut y = starty;
             // determine down or up
             if starty < endy {
                 direction  =  1;
-                y = starty;
+                endy += 1; // exit condition
             } else  {
                 direction = -1;
-                y = starty;
+                endy -= 1; // exit condition
             }
-            while  y != endy {
+            while  y != endy { // +/- 1 of our value based on direction
                 map[y as usize][x as usize] += 1;
                 y += direction;
                 x += 1; // always right
             }
         }
     }
+    
+    // should just count as I go but here we are
     println!("Count: {}", count_highs(2, &map));
 }
 fn count_highs(min_val: i32, grid:&Vec<Vec<i32>>) -> i32 {
@@ -85,6 +94,7 @@ fn count_highs(min_val: i32, grid:&Vec<Vec<i32>>) -> i32 {
     }
     return count;
 }
+
 fn print_grid(grid:&Vec<Vec<i32>>) {
     for row in grid {
         for val in row {
